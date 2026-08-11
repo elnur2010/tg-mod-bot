@@ -4,13 +4,19 @@ import { setGroupLanguage, setBotUserLanguage, getBotUserLanguage } from "../ser
 import { t, isSupportedLanguage } from "../i18n/index.js";
 import { languageKeyboard } from "../commands/languageCommand.js";
 import { buildGroupStartText, sendStartMenuText } from "../commands/startCommand.js";
+import { mainSettingsKeyboard, privateSettingsKeyboard } from "../keyboards/settingsKeyboard.js";
 
 export function registerLanguageHandlers(bot) {
   // ---- Guruh tili ----
-  bot.callbackQuery(/^lang:group:(uz|ru|en)$/, async (ctx) => {
+  // callback data: lang:group:<uz|ru|en>:<start|settings>
+  // oxiridagi <start|settings> — "orqaga" bosilganda qayerga qaytish
+  // kerakligini bildiradi (/til dan kelingan bo'lsa "start", sozlamalar
+  // menyusidan kelingan bo'lsa "settings")
+  bot.callbackQuery(/^lang:group:(uz|ru|en):(start|settings)$/, async (ctx) => {
     const fallbackLang = ctx.lang || "uz";
     try {
       const lang = ctx.match[1];
+      const origin = ctx.match[2];
       if (!isSupportedLanguage(lang)) {
         await ctx.answerCallbackQuery({ text: t(fallbackLang, "language_invalid"), show_alert: true });
         return;
@@ -32,7 +38,7 @@ export function registerLanguageHandlers(bot) {
 
       try {
         await ctx.editMessageText(t(lang, "language_set"), {
-          reply_markup: languageKeyboard(lang, "lang:group:"),
+          reply_markup: languageKeyboard(lang, "lang:group:", origin),
         });
       } catch (error) {
         // Agar xabar o'zgarmagansa (bir xil til tanlansa) — ignore
@@ -48,23 +54,25 @@ export function registerLanguageHandlers(bot) {
   });
 
   // ---- Shaxsiy chat tili ----
-  bot.callbackQuery(/^lang:user:(uz|ru|en)$/, async (ctx) => {
+  // callback data: lang:user:<uz|ru|en>:<start|settings>
+  bot.callbackQuery(/^lang:user:(uz|ru|en):(start|settings)$/, async (ctx) => {
     const fallbackLang = ctx.lang || "uz";
     try {
       const lang = ctx.match[1];
+      const origin = ctx.match[2];
       if (!isSupportedLanguage(lang)) {
         await ctx.answerCallbackQuery({ text: t(fallbackLang, "language_invalid"), show_alert: true });
         return;
       }
 
       await setBotUserLanguage(ctx.from.id, lang);
-      
+
       // Yangilanib saqlandi, confirm xabari
       const newLang = await getBotUserLanguage(ctx.from.id);
 
       try {
         await ctx.editMessageText(t(newLang, "language_set"), {
-          reply_markup: languageKeyboard(newLang, "lang:user:"),
+          reply_markup: languageKeyboard(newLang, "lang:user:", origin),
         });
       } catch (error) {
         // Agar xabar o'zgarmagansa (bir xil til tanlansa) — ignore
@@ -79,10 +87,34 @@ export function registerLanguageHandlers(bot) {
     }
   });
 
-  // ---- "Orqaga" — guruh /til menyusidan /start xabariga qaytish ----
-  bot.callbackQuery(/^lang:group:back$/, async (ctx) => {
+  // ---- "Orqaga" — guruh ----
+  // origin="start"    -> /start (guruh) xabariga qaytadi
+  // origin="settings" -> sozlamalar asosiy menyusiga qaytadi
+  bot.callbackQuery(/^lang:group:back:(start|settings)$/, async (ctx) => {
     const fallbackLang = ctx.lang || "uz";
     try {
+      const origin = ctx.match[1];
+
+      if (origin === "settings") {
+        const admin = await isChatAdmin(ctx);
+        if (!admin) {
+          await ctx.answerCallbackQuery({ text: t(fallbackLang, "settings_admin_only"), show_alert: true });
+          return;
+        }
+        const group = await getGroupByTelegramId(ctx.chat.id);
+        const lang = group?.language || fallbackLang;
+        try {
+          await ctx.editMessageText(t(lang, "settings_title"), {
+            parse_mode: "Markdown",
+            reply_markup: mainSettingsKeyboard(lang),
+          });
+        } catch (error) {
+          if (!error?.description?.includes("message is not modified")) throw error;
+        }
+        await ctx.answerCallbackQuery();
+        return;
+      }
+
       try {
         await ctx.editMessageText(await buildGroupStartText(ctx));
       } catch (error) {
@@ -98,10 +130,28 @@ export function registerLanguageHandlers(bot) {
     }
   });
 
-  // ---- "Orqaga" — shaxsiy chat /til menyusidan /start xabariga qaytish ----
-  bot.callbackQuery(/^lang:user:back$/, async (ctx) => {
+  // ---- "Orqaga" — shaxsiy chat ----
+  // origin="start"    -> /start (shaxsiy) xabariga qaytadi
+  // origin="settings" -> shaxsiy sozlamalar menyusiga qaytadi
+  bot.callbackQuery(/^lang:user:back:(start|settings)$/, async (ctx) => {
     const fallbackLang = ctx.lang || "uz";
     try {
+      const origin = ctx.match[1];
+
+      if (origin === "settings") {
+        const lang = await getBotUserLanguage(ctx.from.id);
+        try {
+          await ctx.editMessageText(t(lang, "private_settings_title"), {
+            parse_mode: "Markdown",
+            reply_markup: privateSettingsKeyboard(lang),
+          });
+        } catch (error) {
+          if (!error?.description?.includes("message is not modified")) throw error;
+        }
+        await ctx.answerCallbackQuery();
+        return;
+      }
+
       const { text, options } = await sendStartMenuText(ctx);
       try {
         await ctx.editMessageText(text, options);

@@ -18,10 +18,12 @@ function getDisplayName(from) {
 }
 
 export function startKeyboard(botUsername, lang, displayName) {
-  return new InlineKeyboard().url(
-    t(lang, "start_add_to_group", { displayName }),
-    `https://t.me/${botUsername}?startgroup=true`,
-  );
+  return new InlineKeyboard()
+    .url(
+      t(lang, "start_add_to_group", { displayName }),
+      `https://t.me/${botUsername}?startgroup=true`,
+    )
+    .text(t(lang, "start_settings_button"), "privatesettings:main");
 }
 
 /** Guruhda /start bosilganda (yoki /til menyusida "orqaga" bosilganda) ko'rsatiladigan matn */

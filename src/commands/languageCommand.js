@@ -6,17 +6,23 @@ import { t, SUPPORTED_LANGUAGES } from "../i18n/index.js";
 
 const LANGUAGE_FLAGS = { uz: "🇺🇿", ru: "🇷🇺", en: "🇬🇧" };
 
-export function languageKeyboard(current, prefix = "lang:set:") {
+/**
+ * Til tanlash klaviaturasi.
+ * `origin` — "orqaga" tugmasi bosilganda foydalanuvchi qayerga qaytishi
+ * kerakligini bildiradi va callback data ichiga qo'shiladi:
+ *   - "start"    — /start xabariga qaytadi
+ *   - "settings" — sozlamalar menyusiga qaytadi (guruhda asosiy
+ *     sozlamalar, shaxsiy chatda shaxsiy sozlamalar menyusi)
+ * (languageHandler.js dagi lang:*:(uz|ru|en):<origin> va
+ * lang:*:back:<origin> handlerlari shu qiymatga qarab yo'naltiradi)
+ */
+export function languageKeyboard(current, prefix, origin = "start") {
   const kb = new InlineKeyboard();
   for (const code of SUPPORTED_LANGUAGES) {
     const label = `${LANGUAGE_FLAGS[code]} ${t(code, "language_name")}`;
-    kb.text(current === code ? `✅ ${label}` : label, `${prefix}${code}`).row();
+    kb.text(current === code ? `✅ ${label}` : label, `${prefix}${code}:${origin}`).row();
   }
-  // "orqaga" tugmasi faqat /til menyusi (guruh/shaxsiy) uchun — bosilganda
-  // /start xabariga qaytariladi (languageHandler.js dagi lang:*:back handlerlari)
-  if (prefix === "lang:group:" || prefix === "lang:user:") {
-    kb.text(t(current, "language_back"), `${prefix}back`);
-  }
+  kb.text(t(current, "language_back"), `${prefix}back:${origin}`);
   return kb;
 }
 
@@ -47,7 +53,7 @@ export function languageCommand(bot) {
         
         const lang = await getGroupLanguage(group.telegramId);
         await ctx.reply(t(lang, "language_prompt"), {
-          reply_markup: languageKeyboard(lang, "lang:group:"),
+          reply_markup: languageKeyboard(lang, "lang:group:", "start"),
         });
       } catch (error) {
         console.error("Til komandasi xatosi (guruh):", error);
@@ -65,7 +71,7 @@ export function languageCommand(bot) {
     try {
       const lang = await getBotUserLanguage(ctx.from.id);
       await ctx.reply(t(lang, "language_prompt"), {
-        reply_markup: languageKeyboard(lang, "lang:user:"),
+        reply_markup: languageKeyboard(lang, "lang:user:", "start"),
       });
     } catch (error) {
       console.error("Til komandasi xatosi (shaxsiy):", error);

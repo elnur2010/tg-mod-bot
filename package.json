@@ -13,6 +13,7 @@
     "prisma:studio": "prisma studio"
   },
   "dependencies": {
+    "@grammyjs/runner": "^2.0.3",
     "@prisma/client": "^5.20.0",
     "dotenv": "^16.4.5",
     "grammy": "^1.30.0"

@@ -12,6 +12,7 @@ export function mainSettingsKeyboard(lang = "uz") {
     channels: t(lang, "keyboard_channels") || "📢 Majburiy kanal",
     rules: t(lang, "keyboard_rules") || "📋 Qoidalar",
     stats: t(lang, "keyboard_stats") || "📊 Statistika",
+    language: t(lang, "keyboard_language") || "🌐 Til",
     advanced: t(lang, "keyboard_advanced") || "🔧 Kengaytirilgan",
     close: t(lang, "keyboard_close") || "❌ Yopish",
   };
@@ -29,7 +30,21 @@ export function mainSettingsKeyboard(lang = "uz") {
     .row()
     .text(labels.stats, "settings:stats")
     .row()
+    .text(labels.language, "settings:language")
+    .row()
     .text(labels.advanced, "settings:advanced")
     .row()
     .text(labels.close, "settings:close");
+}
+
+/**
+ * Shaxsiy chatda /start xabaridagi "⚙️ Sozlamalar" tugmasi ochadigan
+ * menyu. Hozircha faqat til almashtirish bo'limi bor — kelajakda
+ * shaxsiy sozlamalar ko'payganda shu yerga qo'shiladi.
+ */
+export function privateSettingsKeyboard(lang = "uz") {
+  return new InlineKeyboard()
+    .text(t(lang, "keyboard_language") || "🌐 Til", "privatesettings:language")
+    .row()
+    .text(t(lang, "language_back") || "⬅️ Orqaga", "privatesettings:back");
 }

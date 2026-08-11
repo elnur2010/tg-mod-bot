@@ -9,7 +9,8 @@ export default {
   // ===== START COMMAND =====
   start_welcome: "👋 Assalomu alaykum, {{displayName}}!\n\n🛡️ *TOZAA GURUH BOT* ga xush kelibsiz.\n\nMen Telegram guruhlarini avtomatik himoya qiluvchi moderator botman.\n\n👇 Botni guruhingizga qo'shish uchun quyidagi tugmani bosing.",
   start_group_response: "✅ Men bu guruhda ishlashga tayyorman!",
-  start_add_to_group: "➕ {{displayName}}, guruhga qo'shish",
+  start_add_to_group: "➕guruhga qo'shish",
+  start_settings_button: "⚙️ Sozlamalar",
 
   // ===== HELP COMMAND =====
   help_title: "🤖 *Yordam*\n\n",
@@ -50,6 +51,7 @@ export default {
   settings_only_groups: "Bu buyruq faqat guruhlarda ishlaydi.",
   settings_admin_only: "⛔ Sozlamalarni faqat adminlar ochishi mumkin.",
   settings_title: "⚙️ *Bot Sozlamalari*\n\nKerakli bo'limni tanlang:",
+  private_settings_title: "⚙️ *Sozlamalar*\n\nKerakli bo'limni tanlang:",
 
   // ===== ERROR MESSAGES =====
   error_admin_only: "⛔ Bu buyruq faqat adminlar uchun.",
@@ -78,6 +80,7 @@ export default {
   keyboard_channels: "📢 Majburiy kanal",
   keyboard_rules: "📋 Qoidalar",
   keyboard_stats: "📊 Statistika",
+  keyboard_language: "🌐 Til",
   keyboard_advanced: "🔧 Kengaytirilgan",
   keyboard_close: "❌ Yopish",
 

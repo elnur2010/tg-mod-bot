@@ -1,4 +1,5 @@
 import http from "node:http";
+import { run, sequentialize } from "@grammyjs/runner";
 import { bot } from "./config/bot.js";
 import prisma from "./database/prisma.js";
 import { ensureGroup } from "./middlewares/ensureGroup.js";
@@ -39,6 +40,16 @@ async function main() {
 
   // Render/Railway kabi platformalarda portni tinglash majburiy
   startHealthServer();
+
+  // Yangilanishlarni bir xil chat/foydalanuvchi bo'yicha ketma-ket
+  // ishlashni kafolatlaydi — bu quyidagi concurrent runner bilan
+  // birga ishlatilganda majburiy (aks holda bir xil guruh/foydalanuvchi
+  // uchun race condition yuzaga kelishi mumkin)
+  bot.use(sequentialize((ctx) => {
+    const chat = ctx.chat?.id?.toString();
+    const user = ctx.from?.id?.toString();
+    return [chat, user].filter(Boolean);
+  }));
 
   // O'rta dastur: har bir guruh xabari uchun guruh bazada
   // mavjudligini ta'minlaydi
@@ -91,30 +102,36 @@ async function main() {
     console.error("Bot xatoligi:", err);
   });
 
-  await bot.start({
-    // O'chiq turgan vaqtda to'plangan eski (backlog) yangilanishlarni
-    // qayta ishlamaslik uchun — aks holda allaqachon eskirgan buyruqlarga
-    // (masalan, bot chiqarib yuborilgan guruhdagi buyruqlarga) javob
-    // berishga urinib, keraksiz xatoliklar hosil bo'ladi.
-    drop_pending_updates: true,
-    onStart: (botInfo) => {
-      console.log(`✅ Bot ishga tushdi: @${botInfo.username}`);
-    },
-  });
+  // MUHIM: oldingi `bot.start()` yangilanishlarni KETMA-KET (bittadan)
+  // qayta ishlaydi. Agar biror handler ichida bazaga so'rov "osilib
+  // qolsa" (masalan DB provayder uzoq vaqt foydalanilmagan ulanishni
+  // jimgina yopib qo'ysa — Neon/Supabase kabi bepul PostgreSQL'larda
+  // odatiy holat), o'sha bitta yangilanish abadiy kutib turadi va undan
+  // keyingi HAMMA /start va boshqa buyruqlar navbatda muzlab qoladi —
+  // process esa (va health-check server ham) tirik bo'lib qolaveradi,
+  // shuning uchun Render "ishlab turibdi" deb ko'rsataveradi.
+  //
+  // grammY runner esa yangilanishlarni PARALLEL (bir vaqtda bir nechtasi)
+  // qayta ishlaydi, shu sabab bitta "osilib qolgan" so'rov qolgan
+  // foydalanuvchilarni endi bloklamaydi.
+  await bot.init();
+  await bot.api.deleteWebhook({ drop_pending_updates: true });
+  console.log(`✅ Bot ishga tushdi: @${bot.botInfo.username}`);
+
+  const runner = run(bot);
+
+  const stop = async (signal) => {
+    console.log(`\n${signal} qabul qilindi, bot to'xtatilmoqda...`);
+    if (runner.isRunning()) await runner.stop();
+    await prisma.$disconnect();
+    process.exit(0);
+  };
+  process.once("SIGINT", () => stop("SIGINT"));
+  process.once("SIGTERM", () => stop("SIGTERM"));
 }
 
 main().catch(async (err) => {
   console.error("Botni ishga tushirishda xatolik:", err);
   await prisma.$disconnect();
   process.exit(1);
-});
-
-// Dastur to'xtatilganda bazadan tozalab chiqish
-process.once("SIGINT", async () => {
-  await prisma.$disconnect();
-  process.exit(0);
-});
-process.once("SIGTERM", async () => {
-  await prisma.$disconnect();
-  process.exit(0);
 });

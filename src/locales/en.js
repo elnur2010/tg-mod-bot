@@ -9,7 +9,8 @@ export default {
   // ===== START COMMAND =====
   start_welcome: "👋 Hello, {{displayName}}!\n\n🛡️ Welcome to *TOZAA GURUH BOT*.\n\nI'm an automatic moderation bot for protecting Telegram groups.\n\n👇 Click the button below to add me to your group.",
   start_group_response: "✅ I'm ready to work in this group!",
-  start_add_to_group: "➕ {{displayName}}, Add to Group",
+  start_add_to_group: "➕Add to Group",
+  start_settings_button: "⚙️ Settings",
 
   // ===== HELP COMMAND =====
   help_title: "🤖 *Help*\n\n",
@@ -50,6 +51,7 @@ export default {
   settings_only_groups: "This command only works in groups.",
   settings_admin_only: "⛔ Only administrators can open settings.",
   settings_title: "⚙️ *Bot Settings*\n\nSelect a section:",
+  private_settings_title: "⚙️ *Settings*\n\nSelect a section:",
 
   // ===== ERROR MESSAGES =====
   error_admin_only: "⛔ This command is for administrators only.",
@@ -78,6 +80,7 @@ export default {
   keyboard_channels: "📢 Required Channel",
   keyboard_rules: "📋 Rules",
   keyboard_stats: "📊 Statistics",
+  keyboard_language: "🌐 Language",
   keyboard_advanced: "🔧 Advanced",
   keyboard_close: "❌ Close",
 
