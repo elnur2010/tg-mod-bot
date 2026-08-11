@@ -9,7 +9,7 @@ export default {
   // ===== START COMMAND =====
   start_welcome: "👋 Привет, {{displayName}}!\n\n🛡️ *TOZAA GURUH BOT* вас приветствует.\n\nЯ модераторский бот для автоматической защиты групп Telegram.\n\n👇 Нажмите кнопку ниже, чтобы добавить бота в свою группу.",
   start_group_response: "✅ Я готов работать в этой группе!",
-  start_add_to_group: "➕добавить в группу",
+  start_add_to_group: "➕ Добавить в группу",
   start_settings_button: "⚙️ Настройки",
 
   // ===== HELP COMMAND =====

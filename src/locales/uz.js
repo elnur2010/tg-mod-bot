@@ -9,7 +9,7 @@ export default {
   // ===== START COMMAND =====
   start_welcome: "👋 Assalomu alaykum, {{displayName}}!\n\n🛡️ *TOZAA GURUH BOT* ga xush kelibsiz.\n\nMen Telegram guruhlarini avtomatik himoya qiluvchi moderator botman.\n\n👇 Botni guruhingizga qo'shish uchun quyidagi tugmani bosing.",
   start_group_response: "✅ Men bu guruhda ishlashga tayyorman!",
-  start_add_to_group: "➕guruhga qo'shish",
+  start_add_to_group: "➕ Guruhga qo'shish",
   start_settings_button: "⚙️ Sozlamalar",
 
   // ===== HELP COMMAND =====

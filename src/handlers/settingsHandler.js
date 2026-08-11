@@ -1,8 +1,11 @@
 import prisma from "../database/prisma.js";
 import { isChatAdmin } from "../utils/permissions.js";
 import { getGroupWithSettings, getGroupByTelegramId } from "../services/groupService.js";
-import { mainSettingsKeyboard } from "../keyboards/settingsKeyboard.js";
+import { mainSettingsKeyboard, privateSettingsKeyboard } from "../keyboards/settingsKeyboard.js";
 import { moderationKeyboard, TOGGLEABLE_FILTER_FIELDS } from "../keyboards/moderationKeyboard.js";
+import { languageKeyboard } from "../commands/languageCommand.js";
+import { sendStartMenuText } from "../commands/startCommand.js";
+import { getBotUserLanguage } from "../services/languageService.js";
 import { t } from "../i18n/index.js";
 
 /** Tugma bosgan foydalanuvchi admin ekanligini tekshiradi */
@@ -89,6 +92,21 @@ export function registerSettingsHandlers(bot) {
     await ctx.answerCallbackQuery({ text: !currentValue ? t(lang, "settings_toggle_on") : t(lang, "settings_toggle_off") });
   });
 
+  // Til bo'limi (guruh) — /til buyrug'i bilan bir xil klaviatura,
+  // faqat "orqaga" bosilganda /start xabariga emas, shu sozlamalar
+  // menyusiga qaytadi
+  bot.callbackQuery("settings:language", async (ctx) => {
+    const group = await getGroupByTelegramId(ctx.chat.id);
+    const lang = group?.language || "uz";
+
+    if (!(await requireAdminCallback(ctx, lang))) return;
+
+    await ctx.editMessageText(t(lang, "language_prompt"), {
+      reply_markup: languageKeyboard(lang, "lang:group:", "settings"),
+    });
+    await ctx.answerCallbackQuery();
+  });
+
   // Menyuni yopish
   bot.callbackQuery("settings:close", async (ctx) => {
     const group = await getGroupByTelegramId(ctx.chat.id);
@@ -96,6 +114,42 @@ export function registerSettingsHandlers(bot) {
     
     if (!(await requireAdminCallback(ctx, lang))) return;
     await ctx.deleteMessage().catch(() => {});
+    await ctx.answerCallbackQuery();
+  });
+
+  // ===== Shaxsiy chat sozlamalari (/start dagi "⚙️ Sozlamalar" tugmasi) =====
+
+  // Shaxsiy sozlamalar menyusini ochish
+  bot.callbackQuery("privatesettings:main", async (ctx) => {
+    const lang = await getBotUserLanguage(ctx.from.id);
+    try {
+      await ctx.editMessageText(t(lang, "private_settings_title"), {
+        parse_mode: "Markdown",
+        reply_markup: privateSettingsKeyboard(lang),
+      });
+    } catch (error) {
+      if (!error?.description?.includes("message is not modified")) throw error;
+    }
+    await ctx.answerCallbackQuery();
+  });
+
+  // Shaxsiy sozlamalar > Til
+  bot.callbackQuery("privatesettings:language", async (ctx) => {
+    const lang = await getBotUserLanguage(ctx.from.id);
+    await ctx.editMessageText(t(lang, "language_prompt"), {
+      reply_markup: languageKeyboard(lang, "lang:user:", "settings"),
+    });
+    await ctx.answerCallbackQuery();
+  });
+
+  // Shaxsiy sozlamalar menyusidan /start xabariga qaytish
+  bot.callbackQuery("privatesettings:back", async (ctx) => {
+    const { text, options } = await sendStartMenuText(ctx);
+    try {
+      await ctx.editMessageText(text, options);
+    } catch (error) {
+      if (!error?.description?.includes("message is not modified")) throw error;
+    }
     await ctx.answerCallbackQuery();
   });
 }

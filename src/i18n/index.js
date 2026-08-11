@@ -1,10 +1,10 @@
-import uz from "../locales/uz.js";
-import ru from "../locales/ru.js";
-import en from "../locales/en.js";
+import uz from "./locales/uz.js";
+import ru from "./locales/ru.js";
+import en from "./locales/en.js";
+import tr from "./locales/tr.js";
+import ar from "./locales/ar.js";
 
-// Qo'llab-quvvatlanadigan tillar. Yangi til qo'shilganda shu yerga va
-// src/locales/<kod>.js fayliga qo'shiladi.
-export const LOCALES = { uz, ru, en };
+const locales = { uz, ru, en, tr, ar };
 export const SUPPORTED_LANGUAGES = Object.keys(LOCALES);
 export const DEFAULT_LANGUAGE = "uz";
 
