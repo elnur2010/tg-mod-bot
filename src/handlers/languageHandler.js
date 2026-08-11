@@ -8,11 +8,11 @@ import { mainSettingsKeyboard, privateSettingsKeyboard } from "../keyboards/sett
 
 export function registerLanguageHandlers(bot) {
   // ---- Guruh tili ----
-  // callback data: lang:group:<uz|ru|en>:<start|settings>
+  // callback data: lang:group:<uz|ru|en|tr|ar>:<start|settings>
   // oxiridagi <start|settings> — "orqaga" bosilganda qayerga qaytish
   // kerakligini bildiradi (/til dan kelingan bo'lsa "start", sozlamalar
   // menyusidan kelingan bo'lsa "settings")
-  bot.callbackQuery(/^lang:group:(uz|ru|en):(start|settings)$/, async (ctx) => {
+  bot.callbackQuery(/^lang:group:(uz|ru|en|tr|ar):(start|settings)$/, async (ctx) => {
     const fallbackLang = ctx.lang || "uz";
     try {
       const lang = ctx.match[1];
@@ -54,8 +54,8 @@ export function registerLanguageHandlers(bot) {
   });
 
   // ---- Shaxsiy chat tili ----
-  // callback data: lang:user:<uz|ru|en>:<start|settings>
-  bot.callbackQuery(/^lang:user:(uz|ru|en):(start|settings)$/, async (ctx) => {
+  // callback data: lang:user:<uz|ru|en|tr|ar>:<start|settings>
+  bot.callbackQuery(/^lang:user:(uz|ru|en|tr|ar):(start|settings)$/, async (ctx) => {
     const fallbackLang = ctx.lang || "uz";
     try {
       const lang = ctx.match[1];

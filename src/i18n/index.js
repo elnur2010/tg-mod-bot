@@ -1,11 +1,11 @@
-import uz from "./locales/uz.js";
-import ru from "./locales/ru.js";
-import en from "./locales/en.js";
-import tr from "./locales/tr.js";
-import ar from "./locales/ar.js";
+import uz from "../locales/uz.js";
+import ru from "../locales/ru.js";
+import en from "../locales/en.js";
+import tr from "../locales/tr.js";
+import ar from "../locales/ar.js";
 
 const locales = { uz, ru, en, tr, ar };
-export const SUPPORTED_LANGUAGES = Object.keys(LOCALES);
+export const SUPPORTED_LANGUAGES = Object.keys(locales);
 export const DEFAULT_LANGUAGE = "uz";
 
 export function isSupportedLanguage(lang) {
@@ -19,8 +19,8 @@ export function isSupportedLanguage(lang) {
  * `params` bilan matn ichidagi `{{nom}}` o'rinbosarlarni almashtirish mumkin.
  */
 export function t(lang, key, params = {}) {
-  const dict = LOCALES[lang] || LOCALES[DEFAULT_LANGUAGE];
-  let text = dict[key] ?? LOCALES[DEFAULT_LANGUAGE][key] ?? key;
+  const dict = locales[lang] || locales[DEFAULT_LANGUAGE];
+  let text = dict[key] ?? locales[DEFAULT_LANGUAGE][key] ?? key;
 
   for (const [paramKey, value] of Object.entries(params)) {
     text = text.replaceAll(`{{${paramKey}}}`, value);

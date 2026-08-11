@@ -4,7 +4,7 @@ import { getGroupByTelegramId } from "../services/groupService.js";
 import { getGroupLanguage, getBotUserLanguage } from "../services/languageService.js";
 import { t, SUPPORTED_LANGUAGES } from "../i18n/index.js";
 
-const LANGUAGE_FLAGS = { uz: "🇺🇿", ru: "🇷🇺", en: "🇬🇧" };
+const LANGUAGE_FLAGS = { uz: "🇺🇿", ru: "🇷🇺", en: "🇬🇧", tr: "🇹🇷", ar: "🇸🇦" };
 
 /**
  * Til tanlash klaviaturasi.
