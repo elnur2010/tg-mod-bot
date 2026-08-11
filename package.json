@@ -1,6 +1,6 @@
 {
   "name": "tg-moderation-bot",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Telegram guruh moderatsiya boti (grammY + PostgreSQL + Prisma)",
   "type": "module",
   "main": "src/index.js",
